@@ -107,19 +107,19 @@ export function StockHeatmap({ stocks, sectors }: StockHeatmapProps) {
           >
             <Link href={`/player/${stock.playerId}`}>
               <div
-                className="aspect-square rounded-lg flex flex-col items-center justify-center p-1 cursor-pointer transition-transform hover:scale-110 hover:z-10 border border-white/10"
+                className="aspect-square rounded-lg flex flex-col items-center justify-center p-2 cursor-pointer transition-transform hover:scale-110 hover:z-10 border border-white/10"
                 style={{ backgroundColor: getColorForReturn(stock.return) }}
               >
-                <span className="font-bold text-xs md:text-sm text-white drop-shadow-md">
+                <span className="font-bold text-sm md:text-base text-white drop-shadow-md">
                   {stock.ticker}
                 </span>
-                <span className="text-[9px] font-mono text-white/70 drop-shadow-md">
+                <span className="text-[11px] md:text-xs font-mono text-white/70 drop-shadow-md">
                   {formatCurrency(stock.basePrice)}
                 </span>
-                <span className="text-[10px] font-mono text-white/90 drop-shadow-md">
+                <span className="text-xs md:text-sm font-mono text-white/90 drop-shadow-md">
                   {formatCurrency(stock.currentPrice)}
                 </span>
-                <span className="text-[10px] text-white/80 drop-shadow-md">
+                <span className="text-xs md:text-sm text-white/80 drop-shadow-md">
                   {formatPercent(stock.return, 1)}
                 </span>
               </div>

@@ -1,6 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { LiveIndicator } from '@/components/LiveIndicator';
+import { useLivePrices } from '@/hooks/useLivePrices';
 import { calculatePlayerStandings, formatPercent } from '@/lib/calculations';
 import playersData from '@/data/players.json';
 import currentPrices from '@/data/currentPrices.json';
@@ -9,13 +13,39 @@ import { PlayersData, CurrentPrices } from '@/lib/types';
 export default function PlayersPage() {
   const data = playersData as PlayersData;
   const prices = currentPrices as CurrentPrices;
-  const standings = calculatePlayerStandings(data.players, prices);
+
+  // Single source of truth for live prices
+  const {
+    livePrices,
+    isLoading,
+    lastUpdated,
+    marketStatus,
+    isLive,
+    refresh,
+  } = useLivePrices(prices.prices);
+
+  const pricesForCalculation: CurrentPrices = {
+    lastUpdated: lastUpdated?.toISOString() || prices.lastUpdated,
+    prices: livePrices,
+  };
+
+  const standings = calculatePlayerStandings(data.players, pricesForCalculation);
 
   return (
     <main className="container mx-auto px-4 py-8 space-y-8">
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold">All Players</h1>
         <p className="text-muted-foreground">Click on a player to view their full portfolio</p>
+      </div>
+
+      <div className="flex justify-end">
+        <LiveIndicator
+          isLive={isLive}
+          isLoading={isLoading}
+          marketStatus={marketStatus}
+          lastUpdated={lastUpdated}
+          onRefresh={refresh}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -31,8 +61,8 @@ export default function PlayersPage() {
                   <Badge
                     className={
                       standing.totalReturn >= 0
-                        ? 'bg-green-500/20 text-green-500'
-                        : 'bg-red-500/20 text-red-500'
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-red-600/60 text-red-100'
                     }
                   >
                     {formatPercent(standing.totalReturn)}

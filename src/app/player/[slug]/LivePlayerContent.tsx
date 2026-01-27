@@ -176,9 +176,9 @@ export function LivePlayerContent({
             <TableHeader>
               <TableRow>
                 <TableHead>Stock</TableHead>
-                <TableHead>Sector</TableHead>
-                <TableHead className="text-right">Base Price</TableHead>
-                <TableHead className="text-right">Current Price</TableHead>
+                <TableHead className="hidden md:table-cell">Sector</TableHead>
+                <TableHead className="text-right">Base</TableHead>
+                <TableHead className="text-right">Current</TableHead>
                 <TableHead className="text-right">Return</TableHead>
               </TableRow>
             </TableHeader>
@@ -190,16 +190,16 @@ export function LivePlayerContent({
                     <TableCell className="font-medium">
                       <div>
                         <span className="font-bold">{stock.ticker}</span>
-                        <p className="text-xs text-muted-foreground">{info?.name}</p>
+                        <p className="text-xs text-muted-foreground hidden sm:block">{info?.name}</p>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Badge variant="outline">{info?.sector || 'N/A'}</Badge>
                     </TableCell>
-                    <TableCell className="text-right font-mono">
+                    <TableCell className="text-right font-mono text-sm">
                       {formatCurrency(stock.basePrice)}
                     </TableCell>
-                    <TableCell className="text-right font-mono">
+                    <TableCell className="text-right font-mono text-sm">
                       {formatCurrency(stock.currentPrice)}
                     </TableCell>
                     <TableCell className="text-right">
@@ -207,7 +207,7 @@ export function LivePlayerContent({
                         className={
                           stock.return >= 0
                             ? 'bg-green-500/20 text-green-400'
-                            : 'bg-red-900/40 text-red-300'
+                            : 'bg-red-600/60 text-red-100'
                         }
                       >
                         {formatPercent(stock.return)}

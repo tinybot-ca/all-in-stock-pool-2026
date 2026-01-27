@@ -1,3 +1,7 @@
+'use client';
+
+import { useLivePrices } from '@/hooks/useLivePrices';
+import { LiveIndicator } from '@/components/LiveIndicator';
 import { CompareView } from './CompareView';
 import { calculatePlayerStandings } from '@/lib/calculations';
 import playersData from '@/data/players.json';
@@ -8,7 +12,23 @@ import { PlayersData, CurrentPrices } from '@/lib/types';
 export default function ComparePage() {
   const data = playersData as PlayersData;
   const prices = currentPrices as CurrentPrices;
-  const standings = calculatePlayerStandings(data.players, prices);
+
+  // Single source of truth for live prices
+  const {
+    livePrices,
+    isLoading,
+    lastUpdated,
+    marketStatus,
+    isLive,
+    refresh,
+  } = useLivePrices(prices.prices);
+
+  const pricesForCalculation: CurrentPrices = {
+    lastUpdated: lastUpdated?.toISOString() || prices.lastUpdated,
+    prices: livePrices,
+  };
+
+  const standings = calculatePlayerStandings(data.players, pricesForCalculation);
 
   // Get stock info
   const stockInfo = stockPool.stocks.reduce(
@@ -26,6 +46,16 @@ export default function ComparePage() {
         <p className="text-muted-foreground">
           Select two players to compare their portfolios side by side
         </p>
+      </div>
+
+      <div className="flex justify-end">
+        <LiveIndicator
+          isLive={isLive}
+          isLoading={isLoading}
+          marketStatus={marketStatus}
+          lastUpdated={lastUpdated}
+          onRefresh={refresh}
+        />
       </div>
 
       <CompareView standings={standings} stockInfo={stockInfo} />

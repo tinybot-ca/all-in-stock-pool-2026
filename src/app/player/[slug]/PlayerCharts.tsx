@@ -105,7 +105,8 @@ export function PlayerCharts({ stockReturns, sectorBreakdown, stockInfo }: Playe
                   border: '1px solid #374151',
                   borderRadius: '8px',
                 }}
-                labelStyle={{ color: '#f3f4f6' }}
+                labelStyle={{ color: '#ffffff', fontWeight: 'bold' }}
+                itemStyle={{ color: '#ffffff' }}
               />
               <Bar dataKey="return" radius={[0, 4, 4, 0]}>
                 {barData.map((entry, index) => (
@@ -153,6 +154,8 @@ export function PlayerCharts({ stockReturns, sectorBreakdown, stockInfo }: Playe
                   border: '1px solid #374151',
                   borderRadius: '8px',
                 }}
+                labelStyle={{ color: '#ffffff', fontWeight: 'bold' }}
+                itemStyle={{ color: '#ffffff' }}
               />
             </PieChart>
           </ResponsiveContainer>

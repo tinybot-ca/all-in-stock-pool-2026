@@ -92,7 +92,7 @@ export function Leaderboard({ standings, compact = false }: LeaderboardProps) {
                       className={`text-sm font-mono ${
                         standing.totalReturn >= 0
                           ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                          : 'bg-red-900/40 text-red-300 hover:bg-red-900/50'
+                          : 'bg-red-600/60 text-red-100 hover:bg-red-600/70'
                       }`}
                     >
                       {formatPercent(standing.totalReturn)}
