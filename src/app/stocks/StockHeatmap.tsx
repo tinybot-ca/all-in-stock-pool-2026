@@ -113,6 +113,12 @@ export function StockHeatmap({ stocks, sectors }: StockHeatmapProps) {
                 <span className="font-bold text-xs md:text-sm text-white drop-shadow-md">
                   {stock.ticker}
                 </span>
+                <span className="text-[9px] font-mono text-white/70 drop-shadow-md">
+                  {formatCurrency(stock.basePrice)}
+                </span>
+                <span className="text-[10px] font-mono text-white/90 drop-shadow-md">
+                  {formatCurrency(stock.currentPrice)}
+                </span>
                 <span className="text-[10px] text-white/80 drop-shadow-md">
                   {formatPercent(stock.return, 1)}
                 </span>

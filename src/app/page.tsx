@@ -1,7 +1,6 @@
-import { Leaderboard } from '@/components/Leaderboard';
+import { LiveLeaderboard } from '@/components/LiveLeaderboard';
 import { Countdown } from '@/components/Countdown';
-import { StatsCards } from '@/components/StatsCards';
-import { calculatePlayerStandings } from '@/lib/calculations';
+import { LiveStatsCards } from '@/components/LiveStatsCards';
 import playersData from '@/data/players.json';
 import currentPrices from '@/data/currentPrices.json';
 import { PlayersData, CurrentPrices } from '@/lib/types';
@@ -9,7 +8,6 @@ import { PlayersData, CurrentPrices } from '@/lib/types';
 export default function Home() {
   const data = playersData as PlayersData;
   const prices = currentPrices as CurrentPrices;
-  const standings = calculatePlayerStandings(data.players, prices);
 
   return (
     <main className="container mx-auto px-4 py-8 space-y-8">
@@ -29,16 +27,11 @@ export default function Home() {
         prizeAmount={data.contestInfo.prizeAmount}
       />
 
-      {/* Quick Stats */}
-      <StatsCards standings={standings} />
+      {/* Quick Stats with Live Prices */}
+      <LiveStatsCards players={data.players} staticPrices={prices} />
 
-      {/* Main Leaderboard */}
-      <Leaderboard standings={standings} />
-
-      {/* Last Updated */}
-      <p className="text-center text-sm text-muted-foreground">
-        Last updated: {new Date(prices.lastUpdated).toLocaleString()}
-      </p>
+      {/* Main Leaderboard with Live Prices */}
+      <LiveLeaderboard players={data.players} staticPrices={prices} />
     </main>
   );
 }
