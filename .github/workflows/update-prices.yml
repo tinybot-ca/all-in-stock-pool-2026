@@ -1,0 +1,44 @@
+name: Update Stock Prices
+
+on:
+  schedule:
+    # Run at 4:30 PM ET (21:30 UTC) on weekdays
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install ts-node
+        run: npm install -g ts-node typescript
+
+      - name: Fetch stock prices
+        run: npx ts-node scripts/fetchPrices.ts
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code src/data/currentPrices.json || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add src/data/currentPrices.json src/data/history/
+          git commit -m "Update stock prices - $(date +'%Y-%m-%d')"
+          git push

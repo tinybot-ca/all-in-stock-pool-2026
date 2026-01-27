@@ -1,0 +1,182 @@
+{
+  "contestInfo": {
+    "name": "All-In Stock Draft 2026",
+    "startDate": "2026-01-27",
+    "endDate": "2026-12-24",
+    "prizeAmount": 1000,
+    "basePriceDate": "2026-01-26",
+    "scoring": "Average % return of 10 stocks"
+  },
+  "players": [
+    {
+      "id": "lc",
+      "name": "LC",
+      "draftPosition": 1,
+      "stocks": [
+        { "ticker": "MU", "basePrice": 389.09 },
+        { "ticker": "MSFT", "basePrice": 470.28 },
+        { "ticker": "AMD", "basePrice": 251.31 },
+        { "ticker": "MRVL", "basePrice": 81.77 },
+        { "ticker": "AMZN", "basePrice": 238.42 },
+        { "ticker": "NET", "basePrice": 189.35 },
+        { "ticker": "SNOW", "basePrice": 211.27 },
+        { "ticker": "AXON", "basePrice": 605.07 },
+        { "ticker": "BSX", "basePrice": 93.55 },
+        { "ticker": "V", "basePrice": 328.49 }
+      ]
+    },
+    {
+      "id": "aditya",
+      "name": "Aditya",
+      "draftPosition": 2,
+      "stocks": [
+        { "ticker": "NVDA", "basePrice": 186.47 },
+        { "ticker": "PSTG", "basePrice": 72.81 },
+        { "ticker": "ARM", "basePrice": 114.73 },
+        { "ticker": "CRWD", "basePrice": 468.33 },
+        { "ticker": "APLD", "basePrice": 36.18 },
+        { "ticker": "DDOG", "basePrice": 136.64 },
+        { "ticker": "MDB", "basePrice": 411.25 },
+        { "ticker": "VRT", "basePrice": 181.23 },
+        { "ticker": "ANET", "basePrice": 143.72 },
+        { "ticker": "MSTR", "basePrice": 160.58 }
+      ]
+    },
+    {
+      "id": "michael-w",
+      "name": "Michael W",
+      "draftPosition": 3,
+      "stocks": [
+        { "ticker": "INTC", "basePrice": 42.49 },
+        { "ticker": "BA", "basePrice": 248.43 },
+        { "ticker": "PYPL", "basePrice": 56.60 },
+        { "ticker": "ZS", "basePrice": 214.55 },
+        { "ticker": "OKTA", "basePrice": 91.29 },
+        { "ticker": "FTNT", "basePrice": 83.07 },
+        { "ticker": "CFLT", "basePrice": 30.53 },
+        { "ticker": "QCOM", "basePrice": 154.52 },
+        { "ticker": "MPWR", "basePrice": 1068.14 },
+        { "ticker": "ENTG", "basePrice": 115.63 }
+      ]
+    },
+    {
+      "id": "james-l",
+      "name": "James L",
+      "draftPosition": 4,
+      "stocks": [
+        { "ticker": "PATH", "basePrice": 14.91 },
+        { "ticker": "AVGO", "basePrice": 324.85 },
+        { "ticker": "ESTC", "basePrice": 75.16 },
+        { "ticker": "KLAC", "basePrice": 1543.03 },
+        { "ticker": "ON", "basePrice": 61.13 },
+        { "ticker": "NXPI", "basePrice": 231.05 },
+        { "ticker": "LRCX", "basePrice": 222.87 },
+        { "ticker": "AFRM", "basePrice": 68.71 },
+        { "ticker": "SPGI", "basePrice": 535.23 },
+        { "ticker": "VLO", "basePrice": 183.28 }
+      ]
+    },
+    {
+      "id": "tulinh",
+      "name": "Tulinh",
+      "draftPosition": 5,
+      "stocks": [
+        { "ticker": "PLTR", "basePrice": 167.47 },
+        { "ticker": "PANW", "basePrice": 184.22 },
+        { "ticker": "MP", "basePrice": 63.44 },
+        { "ticker": "COST", "basePrice": 977.67 },
+        { "ticker": "STLD", "basePrice": 173.32 },
+        { "ticker": "RTX", "basePrice": 194.13 },
+        { "ticker": "WMT", "basePrice": 117.64 },
+        { "ticker": "LMT", "basePrice": 581.66 },
+        { "ticker": "ALB", "basePrice": 189.75 },
+        { "ticker": "CLF", "basePrice": 14.02 }
+      ]
+    },
+    {
+      "id": "avi",
+      "name": "Avi",
+      "draftPosition": 6,
+      "stocks": [
+        { "ticker": "DUOL", "basePrice": 151.56 },
+        { "ticker": "TEAM", "basePrice": 138.44 },
+        { "ticker": "HUBS", "basePrice": 328.99 },
+        { "ticker": "SOFI", "basePrice": 25.80 },
+        { "ticker": "NOW", "basePrice": 136.34 },
+        { "ticker": "RBLX", "basePrice": 74.01 },
+        { "ticker": "DOCU", "basePrice": 57.66 },
+        { "ticker": "WDAY", "basePrice": 190.85 },
+        { "ticker": "DASH", "basePrice": 209.41 },
+        { "ticker": "XYZ", "basePrice": 65.90 }
+      ]
+    },
+    {
+      "id": "matt",
+      "name": "Matt",
+      "draftPosition": 7,
+      "stocks": [
+        { "ticker": "GOOGL", "basePrice": 333.26 },
+        { "ticker": "ORCL", "basePrice": 182.44 },
+        { "ticker": "UNH", "basePrice": 351.64 },
+        { "ticker": "JPM", "basePrice": 301.04 },
+        { "ticker": "NKE", "basePrice": 64.99 },
+        { "ticker": "AZO", "basePrice": 3786.03 },
+        { "ticker": "UBER", "basePrice": 81.98 },
+        { "ticker": "XOM", "basePrice": 134.84 },
+        { "ticker": "CVX", "basePrice": 167.50 },
+        { "ticker": "CL", "basePrice": 85.20 }
+      ]
+    },
+    {
+      "id": "andrea-a",
+      "name": "Andrea A",
+      "draftPosition": 8,
+      "stocks": [
+        { "ticker": "META", "basePrice": 672.36 },
+        { "ticker": "HOOD", "basePrice": 107.00 },
+        { "ticker": "NFLX", "basePrice": 85.70 },
+        { "ticker": "TTD", "basePrice": 33.81 },
+        { "ticker": "MRNA", "basePrice": 47.99 },
+        { "ticker": "IDXX", "basePrice": 697.82 },
+        { "ticker": "ISRG", "basePrice": 528.81 },
+        { "ticker": "CMG", "basePrice": 39.72 },
+        { "ticker": "MO", "basePrice": 62.98 },
+        { "ticker": "NEM", "basePrice": 125.92 }
+      ]
+    },
+    {
+      "id": "derek",
+      "name": "Derek",
+      "draftPosition": 9,
+      "stocks": [
+        { "ticker": "TSLA", "basePrice": 435.20 },
+        { "ticker": "LLY", "basePrice": 1062.75 },
+        { "ticker": "VST", "basePrice": 158.81 },
+        { "ticker": "PWR", "basePrice": 470.77 },
+        { "ticker": "U", "basePrice": 43.00 },
+        { "ticker": "CEG", "basePrice": 285.27 },
+        { "ticker": "ETN", "basePrice": 332.28 },
+        { "ticker": "GNRC", "basePrice": 167.11 },
+        { "ticker": "VRTX", "basePrice": 476.84 },
+        { "ticker": "ELF", "basePrice": 88.80 }
+      ]
+    },
+    {
+      "id": "young",
+      "name": "Young",
+      "draftPosition": 10,
+      "stocks": [
+        { "ticker": "COIN", "basePrice": 213.48 },
+        { "ticker": "SMCI", "basePrice": 30.80 },
+        { "ticker": "BILL", "basePrice": 49.35 },
+        { "ticker": "DKNG", "basePrice": 30.58 },
+        { "ticker": "PAYC", "basePrice": 147.45 },
+        { "ticker": "PCTY", "basePrice": 145.52 },
+        { "ticker": "GTLB", "basePrice": 38.17 },
+        { "ticker": "ZM", "basePrice": 95.46 },
+        { "ticker": "SWKS", "basePrice": 59.76 },
+        { "ticker": "CRUS", "basePrice": 128.26 }
+      ]
+    }
+  ]
+}
