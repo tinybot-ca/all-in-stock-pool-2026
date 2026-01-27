@@ -1,6 +1,11 @@
-import { LiveLeaderboard } from '@/components/LiveLeaderboard';
+'use client';
+
+import { useLivePrices } from '@/hooks/useLivePrices';
+import { Leaderboard } from '@/components/Leaderboard';
+import { LiveIndicator } from '@/components/LiveIndicator';
+import { StatsCards } from '@/components/StatsCards';
 import { Countdown } from '@/components/Countdown';
-import { LiveStatsCards } from '@/components/LiveStatsCards';
+import { calculatePlayerStandings } from '@/lib/calculations';
 import playersData from '@/data/players.json';
 import currentPrices from '@/data/currentPrices.json';
 import { PlayersData, CurrentPrices } from '@/lib/types';
@@ -8,6 +13,23 @@ import { PlayersData, CurrentPrices } from '@/lib/types';
 export default function Home() {
   const data = playersData as PlayersData;
   const prices = currentPrices as CurrentPrices;
+
+  // Single source of truth for live prices
+  const {
+    livePrices,
+    isLoading,
+    lastUpdated,
+    marketStatus,
+    isLive,
+    refresh,
+  } = useLivePrices(prices.prices);
+
+  const pricesForCalculation: CurrentPrices = {
+    lastUpdated: lastUpdated?.toISOString() || prices.lastUpdated,
+    prices: livePrices,
+  };
+
+  const standings = calculatePlayerStandings(data.players, pricesForCalculation);
 
   return (
     <main className="container mx-auto px-4 py-8 space-y-8">
@@ -27,11 +49,22 @@ export default function Home() {
         prizeAmount={data.contestInfo.prizeAmount}
       />
 
-      {/* Quick Stats with Live Prices */}
-      <LiveStatsCards players={data.players} staticPrices={prices} />
+      {/* Live Indicator */}
+      <div className="flex justify-end">
+        <LiveIndicator
+          isLive={isLive}
+          isLoading={isLoading}
+          marketStatus={marketStatus}
+          lastUpdated={lastUpdated}
+          onRefresh={refresh}
+        />
+      </div>
 
-      {/* Main Leaderboard with Live Prices */}
-      <LiveLeaderboard players={data.players} staticPrices={prices} />
+      {/* Quick Stats - shares same standings data */}
+      <StatsCards standings={standings} />
+
+      {/* Main Leaderboard - shares same standings data */}
+      <Leaderboard standings={standings} />
     </main>
   );
 }
