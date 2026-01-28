@@ -7,9 +7,29 @@ import { formatPercent } from '@/lib/calculations';
 
 interface StatsCardsProps {
   standings: PlayerStanding[];
+  lastUpdated?: Date | null;
 }
 
-export function StatsCards({ standings }: StatsCardsProps) {
+// Format currency
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(price);
+}
+
+// Format time
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
   // Find best performing stock today
   const allStocks = standings.flatMap((s) =>
     s.stockReturns.map((sr) => ({ ...sr, owner: s.player.name }))
@@ -53,9 +73,17 @@ export function StatsCards({ standings }: StatsCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{bestStock.ticker}</div>
-          <p className="text-xs text-green-500">
+          <div className="text-xs text-muted-foreground mt-1">
+            {formatPrice(bestStock.basePrice)} → {formatPrice(bestStock.currentPrice)}
+          </div>
+          <p className="text-xs text-green-500 mt-1">
             {formatPercent(bestStock.return)} ({bestStock.owner})
           </p>
+          {lastUpdated && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Updated {formatTime(lastUpdated)}
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -66,9 +94,17 @@ export function StatsCards({ standings }: StatsCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{worstStock.ticker}</div>
-          <p className="text-xs text-red-500">
+          <div className="text-xs text-muted-foreground mt-1">
+            {formatPrice(worstStock.basePrice)} → {formatPrice(worstStock.currentPrice)}
+          </div>
+          <p className="text-xs text-red-500 mt-1">
             {formatPercent(worstStock.return)} ({worstStock.owner})
           </p>
+          {lastUpdated && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Updated {formatTime(lastUpdated)}
+            </p>
+          )}
         </CardContent>
       </Card>
 

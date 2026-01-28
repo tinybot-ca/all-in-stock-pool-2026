@@ -61,7 +61,7 @@ export default function Home() {
       </div>
 
       {/* Quick Stats - shares same standings data */}
-      <StatsCards standings={standings} />
+      <StatsCards standings={standings} lastUpdated={lastUpdated} />
 
       {/* Main Leaderboard - shares same standings data */}
       <Leaderboard standings={standings} />
