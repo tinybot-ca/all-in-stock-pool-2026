@@ -7,7 +7,7 @@ import playersData from '@/data/players.json';
 declare global {
   // eslint-disable-next-line no-var
   var priceCache: {
-    prices: Record<string, { price: number; change: number; changePercent: number }>;
+    prices: Record<string, { price: number; change: number; changePercent: number; updatedAt: number }>;
     timestamp: number;
     marketStatus: { isOpen: boolean; message: string };
   } | null;
@@ -75,14 +75,16 @@ export async function GET(request: Request) {
     console.log(`[Cron] Fetching group ${global.lastBatchGroup + 1}/2: ${tickersToFetch.length} stocks...`);
 
     const quotes = await fetchQuotes(tickersToFetch, apiKey);
+    const now = Date.now();
 
-    // Transform to simpler format
-    const newPrices: Record<string, { price: number; change: number; changePercent: number }> = {};
+    // Transform to simpler format with individual timestamps
+    const newPrices: Record<string, { price: number; change: number; changePercent: number; updatedAt: number }> = {};
     Object.entries(quotes).forEach(([ticker, data]) => {
       newPrices[ticker] = {
         price: data.price,
         change: data.change,
         changePercent: data.changePercent,
+        updatedAt: now,
       };
     });
 

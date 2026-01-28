@@ -39,12 +39,25 @@ export function LivePlayerContent({
 }: LivePlayerContentProps) {
   const {
     livePrices,
+    priceTimestamps,
     isLoading,
     lastUpdated,
     marketStatus,
     isLive,
     refresh,
   } = useLivePrices(staticPrices.prices);
+
+  // Format timestamp for display
+  const formatTimestamp = (timestamp: number | undefined) => {
+    if (!timestamp) return '-';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+  };
 
   const pricesForCalculation: CurrentPrices = {
     lastUpdated: lastUpdated?.toISOString() || staticPrices.lastUpdated,
@@ -180,6 +193,7 @@ export function LivePlayerContent({
                 <TableHead className="text-right">Base</TableHead>
                 <TableHead className="text-right">Current</TableHead>
                 <TableHead className="text-right">Return</TableHead>
+                <TableHead className="text-right hidden lg:table-cell">Updated</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -212,6 +226,9 @@ export function LivePlayerContent({
                       >
                         {formatPercent(stock.return)}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground hidden lg:table-cell">
+                      {formatTimestamp(priceTimestamps[stock.ticker])}
                     </TableCell>
                   </TableRow>
                 );

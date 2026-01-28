@@ -3,8 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { LivePriceData } from '@/lib/finnhub';
 
+interface LivePriceDataWithTimestamp extends LivePriceData {
+  updatedAt?: number;
+}
+
 interface LivePricesResponse {
-  prices: Record<string, LivePriceData>;
+  prices: Record<string, LivePriceDataWithTimestamp>;
   timestamp: number;
   marketStatus: { isOpen: boolean; message: string };
   cached?: boolean;
@@ -14,6 +18,7 @@ interface LivePricesResponse {
 
 interface UseLivePricesResult {
   livePrices: Record<string, number>;
+  priceTimestamps: Record<string, number>;
   isLoading: boolean;
   error: string | null;
   lastUpdated: Date | null;
@@ -28,6 +33,7 @@ export function useLivePrices(
   staticPrices: Record<string, number>
 ): UseLivePricesResult {
   const [livePrices, setLivePrices] = useState<Record<string, number>>(staticPrices);
+  const [priceTimestamps, setPriceTimestamps] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -53,20 +59,27 @@ export function useLivePrices(
       // If we got live prices, merge with static prices
       if (data.prices && Object.keys(data.prices).length > 0) {
         const mergedPrices = { ...staticPrices };
+        const timestamps: Record<string, number> = {};
         Object.entries(data.prices).forEach(([ticker, priceData]) => {
           mergedPrices[ticker] = priceData.price;
+          if (priceData.updatedAt) {
+            timestamps[ticker] = priceData.updatedAt;
+          }
         });
         setLivePrices(mergedPrices);
+        setPriceTimestamps(timestamps);
         setIsLive(true);
       } else {
         // Market closed or no data - use static prices
         setLivePrices(staticPrices);
+        setPriceTimestamps({});
         setIsLive(false);
       }
     } catch (err) {
       console.error('Error fetching live prices:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
       setLivePrices(staticPrices);
+      setPriceTimestamps({});
       setIsLive(false);
     } finally {
       setIsLoading(false);
@@ -90,6 +103,7 @@ export function useLivePrices(
 
   return {
     livePrices,
+    priceTimestamps,
     isLoading,
     error,
     lastUpdated,

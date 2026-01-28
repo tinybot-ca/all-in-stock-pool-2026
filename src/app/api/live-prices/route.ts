@@ -6,7 +6,7 @@ import playersData from '@/data/players.json';
 declare global {
   // eslint-disable-next-line no-var
   var priceCache: {
-    prices: Record<string, { price: number; change: number; changePercent: number }>;
+    prices: Record<string, { price: number; change: number; changePercent: number; updatedAt: number }>;
     timestamp: number;
     marketStatus: { isOpen: boolean; message: string };
   } | null;
@@ -61,8 +61,8 @@ export async function GET() {
 
   // Check if we have fresh data from the cron job
   if (global.priceCache && now - global.priceCache.timestamp < CACHE_TTL) {
-    // Convert from cron cache format to expected format
-    const prices: Record<string, LivePriceData> = {};
+    // Convert from cron cache format to expected format, including per-stock timestamps
+    const prices: Record<string, LivePriceData & { updatedAt?: number }> = {};
     Object.entries(global.priceCache.prices).forEach(([ticker, data]) => {
       prices[ticker] = {
         ticker,
@@ -73,6 +73,7 @@ export async function GET() {
         low: 0,
         open: 0,
         previousClose: 0,
+        updatedAt: data.updatedAt,
       };
     });
 
