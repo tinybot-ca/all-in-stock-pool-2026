@@ -15,6 +15,7 @@ interface PlayerData {
 
 interface RaceChartProps {
   players: PlayerData[];
+  contestStartDate?: string;
 }
 
 const COLORS = [
@@ -30,17 +31,26 @@ const COLORS = [
   '#84cc16', // Lime
 ];
 
-export function RaceChart({ players }: RaceChartProps) {
+export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChartProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [frame, setFrame] = useState(0);
-  const totalFrames = 100;
+
+  // Calculate days elapsed since contest start
+  const startDate = new Date(contestStartDate);
+  const today = new Date();
+  const daysElapsed = Math.max(1, Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+  // Total frames = days elapsed (minimum 1)
+  const totalFrames = Math.max(1, daysElapsed);
 
   // Sort players by their animated return value
   const sortedPlayers = [...players]
     .map((player, index) => ({
       ...player,
       color: COLORS[index % COLORS.length],
-      animatedReturn: player.currentReturn * (frame / totalFrames),
+      animatedReturn: totalFrames > 1
+        ? player.currentReturn * (frame / totalFrames)
+        : player.currentReturn, // If only 1 day, show full return
     }))
     .sort((a, b) => b.animatedReturn - a.animatedReturn);
 
@@ -51,15 +61,17 @@ export function RaceChart({ players }: RaceChartProps) {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && frame < totalFrames) {
+      // Speed depends on total frames - faster for fewer days
+      const speed = totalFrames <= 5 ? 500 : totalFrames <= 30 ? 100 : 50;
       interval = setInterval(() => {
         setFrame((f) => Math.min(f + 1, totalFrames));
-      }, 50);
+      }, speed);
     }
     if (frame >= totalFrames) {
       setIsPlaying(false);
     }
     return () => clearInterval(interval);
-  }, [isPlaying, frame]);
+  }, [isPlaying, frame, totalFrames]);
 
   const handleReset = () => {
     setFrame(0);
@@ -96,7 +108,7 @@ export function RaceChart({ players }: RaceChartProps) {
             />
           </div>
           <p className="text-sm text-muted-foreground mt-1 text-center">
-            Day {Math.round((frame / totalFrames) * 332)} of 332
+            Day {frame} of {daysElapsed} {daysElapsed === 1 ? '(Contest just started!)' : ''}
           </p>
         </div>
 
@@ -154,8 +166,9 @@ export function RaceChart({ players }: RaceChartProps) {
         {/* Legend */}
         <div className="mt-8 pt-4 border-t text-sm text-muted-foreground">
           <p>
-            This animation shows how standings would change from the start of the contest to the current day.
-            Click play to watch the race unfold!
+            {daysElapsed <= 2
+              ? "The contest just started! As more days pass, this animation will show how standings change over time."
+              : "This animation shows how standings have changed since the start of the contest. Click play to watch the race unfold!"}
           </p>
         </div>
       </CardContent>

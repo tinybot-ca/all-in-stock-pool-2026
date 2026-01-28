@@ -56,7 +56,7 @@ export default function RacePage() {
         />
       </div>
 
-      <RaceChart players={raceData} />
+      <RaceChart players={raceData} contestStartDate={data.contestInfo.startDate} />
     </main>
   );
 }
