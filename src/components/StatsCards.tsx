@@ -45,6 +45,8 @@ export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
   const volatility = standings.map((s) => ({
     player: s.player.name,
     spread: s.bestStock.return - s.worstStock.return,
+    bestStock: s.bestStock,
+    worstStock: s.worstStock,
   }));
   const mostVolatile = volatility.reduce((max, v) => (v.spread > max.spread ? v : max));
 
@@ -136,6 +138,16 @@ export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
           <p className="text-xs text-muted-foreground">
             {formatPercent(mostVolatile.spread)} spread
           </p>
+          <div className="text-xs text-muted-foreground mt-2 pt-2 border-t border-muted space-y-1">
+            <div>
+              <span className="text-green-500">{mostVolatile.bestStock.ticker}</span>
+              <span className="text-green-500 ml-1">{formatPercent(mostVolatile.bestStock.return)}</span>
+            </div>
+            <div>
+              <span className="text-red-400">{mostVolatile.worstStock.ticker}</span>
+              <span className="text-red-400 ml-1">{formatPercent(mostVolatile.worstStock.return)}</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
