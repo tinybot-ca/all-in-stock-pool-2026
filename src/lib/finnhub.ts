@@ -63,8 +63,8 @@ export async function fetchQuotes(
   const results: Record<string, LivePriceData> = {};
 
   // Fetch sequentially with delays to stay under Finnhub's 60 calls/min limit
-  // 50 stocks with 1.2s delay = 60 seconds total, safely under the limit
-  const delayMs = 1200;
+  // 50 stocks with 1s delay = 50 seconds total, completing before next cron run
+  const delayMs = 1000;
 
   for (let i = 0; i < symbols.length; i++) {
     const symbol = symbols[i];
