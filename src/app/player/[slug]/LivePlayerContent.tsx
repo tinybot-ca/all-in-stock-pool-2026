@@ -49,12 +49,15 @@ export function LivePlayerContent({
 
   // Format timestamp for display
   const formatTimestamp = (timestamp: number | undefined) => {
-    if (!timestamp) return '-';
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', {
+    // Use individual stock timestamp if available, otherwise fall back to static prices timestamp
+    const ts = timestamp || (staticPrices.lastUpdated ? new Date(staticPrices.lastUpdated).getTime() : undefined);
+    if (!ts) return '-';
+    const date = new Date(ts);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
-      second: '2-digit',
       hour12: true,
     });
   };
