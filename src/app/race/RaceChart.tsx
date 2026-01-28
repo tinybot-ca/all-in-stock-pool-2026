@@ -32,7 +32,7 @@ const COLORS = [
 ];
 
 export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChartProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true); // Auto-play on load
   const [frame, setFrame] = useState(0);
 
   // Calculate days elapsed since contest start
