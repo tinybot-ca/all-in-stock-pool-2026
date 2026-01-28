@@ -108,7 +108,10 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
             />
           </div>
           <p className="text-sm text-muted-foreground mt-1 text-center">
-            Day {frame} of {daysElapsed} {daysElapsed === 1 ? '(Contest just started!)' : ''}
+            {frame === 0
+              ? 'Day 0 (Base prices - Jan 26 close)'
+              : `Day ${frame}${frame === daysElapsed ? ' (Today)' : ''}`
+            }
           </p>
         </div>
 
@@ -167,8 +170,8 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
         <div className="mt-8 pt-4 border-t text-sm text-muted-foreground">
           <p>
             {daysElapsed <= 2
-              ? "The contest just started! As more days pass, this animation will show how standings change over time."
-              : "This animation shows how standings have changed since the start of the contest. Click play to watch the race unfold!"}
+              ? "The contest just started! Day 0 shows base prices (Jan 26 close), Day 1 is the first trading day (Jan 27)."
+              : "This animation shows how standings have changed since the start of the contest. Day 0 = base prices, Day 1 = Jan 27. Click play to watch the race unfold!"}
           </p>
         </div>
       </CardContent>
