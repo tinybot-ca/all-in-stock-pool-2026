@@ -1,10 +1,10 @@
-name: Update Stock Prices
+name: Update Daily Prices
 
 on:
   schedule:
-    # Run at 4:30 PM ET (21:30 UTC) on weekdays
+    # Run at 9:30 PM UTC (4:30 PM ET) on weekdays - after market close
     - cron: '30 21 * * 1-5'
-  workflow_dispatch: # Allow manual triggers
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   update-prices:
@@ -23,11 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install ts-node
-        run: npm install -g ts-node typescript
-
-      - name: Fetch stock prices
-        run: npx ts-node scripts/fetchPrices.ts
+      - name: Fetch latest prices
+        run: npx tsx scripts/fetchPrices.ts
 
       - name: Check for changes
         id: git-check
@@ -40,5 +37,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add src/data/currentPrices.json src/data/history/
-          git commit -m "Update stock prices - $(date +'%Y-%m-%d')"
+          git commit -m "Update prices for $(date -u +%Y-%m-%d)"
           git push
