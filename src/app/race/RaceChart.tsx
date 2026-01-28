@@ -47,13 +47,12 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
   const totalFrames = Math.max(1, daysElapsed);
 
   // Sort players by their animated return value
+  // Frame 0 = Day 0 (base prices, 0% return), Frame 1 = Day 1, etc.
   const sortedPlayers = [...players]
     .map((player, index) => ({
       ...player,
       color: COLORS[index % COLORS.length],
-      animatedReturn: totalFrames > 1
-        ? player.currentReturn * (frame / totalFrames)
-        : player.currentReturn, // If only 1 day, show full return
+      animatedReturn: frame === 0 ? 0 : player.currentReturn * (frame / totalFrames),
     }))
     .sort((a, b) => b.animatedReturn - a.animatedReturn);
 
