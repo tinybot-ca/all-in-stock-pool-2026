@@ -50,6 +50,10 @@ export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
 
   // Leader
   const leader = standings[0];
+  // Get the leader's top stock with full details
+  const leaderTopStock = leader.stockReturns.reduce((best, stock) =>
+    stock.return > best.return ? stock : best
+  );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -63,6 +67,20 @@ export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
           <p className={`text-xs ${leader.totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}>
             {formatPercent(leader.totalReturn)} total return
           </p>
+          <div className="text-xs text-muted-foreground mt-2 pt-2 border-t border-muted">
+            <span className="font-medium">Top: {leaderTopStock.ticker}</span>
+            <span className="ml-1">
+              ({formatPrice(leaderTopStock.basePrice)} → {formatPrice(leaderTopStock.currentPrice)})
+            </span>
+            <span className={`ml-1 ${leaderTopStock.return >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {formatPercent(leaderTopStock.return)}
+            </span>
+          </div>
+          {lastUpdated && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Updated {formatTime(lastUpdated)}
+            </p>
+          )}
         </CardContent>
       </Card>
 
