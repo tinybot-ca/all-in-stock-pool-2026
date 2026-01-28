@@ -11,9 +11,12 @@ declare global {
     timestamp: number;
     marketStatus: { isOpen: boolean; message: string };
   } | null;
+  // eslint-disable-next-line no-var
+  var lastBatchGroup: number;
 }
 
 global.priceCache = global.priceCache || null;
+global.lastBatchGroup = global.lastBatchGroup || 0;
 
 // Get all unique tickers from players
 function getAllTickers(): string[] {
@@ -57,33 +60,49 @@ export async function GET(request: Request) {
   }
 
   try {
-    const tickers = getAllTickers();
-    console.log(`[Cron] Fetching live prices for ${tickers.length} stocks...`);
+    const allTickers = getAllTickers();
 
-    const quotes = await fetchQuotes(tickers, apiKey);
+    // Split tickers into 2 groups to stay under Finnhub's 60 calls/min limit
+    // Alternate between groups each minute
+    const midpoint = Math.ceil(allTickers.length / 2);
+    const group1 = allTickers.slice(0, midpoint);
+    const group2 = allTickers.slice(midpoint);
+
+    // Alternate which group we fetch
+    global.lastBatchGroup = (global.lastBatchGroup + 1) % 2;
+    const tickersToFetch = global.lastBatchGroup === 0 ? group1 : group2;
+
+    console.log(`[Cron] Fetching group ${global.lastBatchGroup + 1}/2: ${tickersToFetch.length} stocks...`);
+
+    const quotes = await fetchQuotes(tickersToFetch, apiKey);
 
     // Transform to simpler format
-    const prices: Record<string, { price: number; change: number; changePercent: number }> = {};
+    const newPrices: Record<string, { price: number; change: number; changePercent: number }> = {};
     Object.entries(quotes).forEach(([ticker, data]) => {
-      prices[ticker] = {
+      newPrices[ticker] = {
         price: data.price,
         change: data.change,
         changePercent: data.changePercent,
       };
     });
 
+    // Merge with existing cache (keep prices from other group)
+    const existingPrices = global.priceCache?.prices || {};
+    const mergedPrices = { ...existingPrices, ...newPrices };
+
     // Update global cache
     global.priceCache = {
-      prices,
+      prices: mergedPrices,
       timestamp: Date.now(),
       marketStatus,
     };
 
-    console.log(`[Cron] Updated ${Object.keys(prices).length} prices successfully`);
+    console.log(`[Cron] Updated ${Object.keys(newPrices).length} prices (total cached: ${Object.keys(mergedPrices).length})`);
 
     return NextResponse.json({
       success: true,
-      message: `Updated ${Object.keys(prices).length} prices`,
+      message: `Updated group ${global.lastBatchGroup + 1}/2: ${Object.keys(newPrices).length} prices`,
+      totalCached: Object.keys(mergedPrices).length,
       marketStatus,
       timestamp: Date.now(),
     });

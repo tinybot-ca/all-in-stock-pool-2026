@@ -62,33 +62,29 @@ export async function fetchQuotes(
 ): Promise<Record<string, LivePriceData>> {
   const results: Record<string, LivePriceData> = {};
 
-  // Fetch in batches with small delays to avoid rate limiting
-  const batchSize = 10;
-  const delayMs = 200; // 200ms between batches = max 50 batches/10s = 500 calls/10s
+  // Fetch sequentially with delays to stay under Finnhub's 60 calls/min limit
+  // 50 stocks with 1.2s delay = 60 seconds total, safely under the limit
+  const delayMs = 1200;
 
-  for (let i = 0; i < symbols.length; i += batchSize) {
-    const batch = symbols.slice(i, i + batchSize);
+  for (let i = 0; i < symbols.length; i++) {
+    const symbol = symbols[i];
 
-    const promises = batch.map(async (symbol) => {
-      const quote = await fetchQuote(symbol, apiKey);
-      if (quote) {
-        results[symbol] = {
-          ticker: symbol,
-          price: quote.c,
-          change: quote.d,
-          changePercent: quote.dp,
-          high: quote.h,
-          low: quote.l,
-          open: quote.o,
-          previousClose: quote.pc,
-        };
-      }
-    });
+    const quote = await fetchQuote(symbol, apiKey);
+    if (quote) {
+      results[symbol] = {
+        ticker: symbol,
+        price: quote.c,
+        change: quote.d,
+        changePercent: quote.dp,
+        high: quote.h,
+        low: quote.l,
+        open: quote.o,
+        previousClose: quote.pc,
+      };
+    }
 
-    await Promise.all(promises);
-
-    // Small delay between batches
-    if (i + batchSize < symbols.length) {
+    // Delay between calls (skip after last one)
+    if (i < symbols.length - 1) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
