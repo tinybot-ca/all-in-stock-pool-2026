@@ -36,9 +36,12 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
   const [frame, setFrame] = useState(0);
 
   // Calculate days elapsed since contest start
-  const startDate = new Date(contestStartDate);
+  // Jan 27 = Day 1, Jan 28 = Day 2, etc.
+  const startDate = new Date(contestStartDate + 'T00:00:00');
   const today = new Date();
-  const daysElapsed = Math.max(1, Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const daysDiff = Math.floor((todayMidnight.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  const daysElapsed = Math.max(1, daysDiff + 1); // +1 because contest start date is Day 1
 
   // Total frames = days elapsed (minimum 1)
   const totalFrames = Math.max(1, daysElapsed);
