@@ -1,143 +1,38 @@
 import { NextResponse } from 'next/server';
-import { fetchQuotes, getMarketStatus, LivePriceData } from '@/lib/finnhub';
-import playersData from '@/data/players.json';
-
-// Reference the global cache set by the cron job
-declare global {
-  // eslint-disable-next-line no-var
-  var priceCache: {
-    prices: Record<string, { price: number; change: number; changePercent: number; updatedAt: number }>;
-    timestamp: number;
-    marketStatus: { isOpen: boolean; message: string };
-  } | null;
-}
-
-global.priceCache = global.priceCache || null;
-
-// Local fallback cache (in case cron hasn't run yet)
-interface CacheData {
-  prices: Record<string, LivePriceData>;
-  timestamp: number;
-  marketStatus: { isOpen: boolean; message: string };
-}
-
-let localCache: CacheData | null = null;
-const CACHE_TTL = 60 * 1000; // 1 minute
-
-// Get all unique tickers from players
-function getAllTickers(): string[] {
-  const tickers = new Set<string>();
-  playersData.players.forEach((player) => {
-    player.stocks.forEach((stock) => {
-      tickers.add(stock.ticker);
-    });
-  });
-  return Array.from(tickers);
-}
+import { getMarketStatus } from '@/lib/finnhub';
+import currentPrices from '@/data/currentPrices.json';
 
 export async function GET() {
-  const apiKey = process.env.FINNHUB_API_KEY;
-
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: 'Finnhub API key not configured' },
-      { status: 500 }
-    );
-  }
-
-  const now = Date.now();
   const marketStatus = getMarketStatus();
+  const now = Date.now();
 
-  // If market is closed, return empty (client will use static prices)
-  if (!marketStatus.isOpen) {
-    return NextResponse.json({
-      prices: {},
-      timestamp: now,
-      marketStatus,
-      cached: false,
-      message: 'Market closed - use daily close prices',
-    });
-  }
+  // Always return the static prices from the JSON file
+  // These are updated daily after market close by GitHub Action
+  const staticTimestamp = new Date(currentPrices.lastUpdated).getTime();
 
-  // Check if we have fresh data from the cron job
-  if (global.priceCache && now - global.priceCache.timestamp < CACHE_TTL) {
-    // Convert from cron cache format to expected format, including per-stock timestamps
-    const prices: Record<string, LivePriceData & { updatedAt?: number }> = {};
-    Object.entries(global.priceCache.prices).forEach(([ticker, data]) => {
-      prices[ticker] = {
-        ticker,
-        price: data.price,
-        change: data.change,
-        changePercent: data.changePercent,
-        high: 0,
-        low: 0,
-        open: 0,
-        previousClose: 0,
-        updatedAt: data.updatedAt,
-      };
-    });
+  // Convert prices to the expected format
+  const prices: Record<string, {
+    ticker: string;
+    price: number;
+    updatedAt: number;
+  }> = {};
 
-    return NextResponse.json({
-      prices,
-      timestamp: global.priceCache.timestamp,
-      marketStatus: global.priceCache.marketStatus,
-      cached: true,
-      source: 'cron',
-    });
-  }
-
-  // Fallback: Check local cache
-  if (localCache && now - localCache.timestamp < CACHE_TTL) {
-    return NextResponse.json({
-      prices: localCache.prices,
-      timestamp: localCache.timestamp,
-      marketStatus: localCache.marketStatus,
-      cached: true,
-      source: 'local',
-    });
-  }
-
-  // Last resort: Fetch directly (shouldn't happen often if cron is running)
-  try {
-    const tickers = getAllTickers();
-    console.log(`[API] Fetching live prices for ${tickers.length} stocks (cron cache miss)...`);
-
-    const prices = await fetchQuotes(tickers, apiKey);
-
-    // Update local cache
-    localCache = {
-      prices,
-      timestamp: now,
-      marketStatus,
+  Object.entries(currentPrices.prices).forEach(([ticker, price]) => {
+    prices[ticker] = {
+      ticker,
+      price: price as number,
+      updatedAt: staticTimestamp,
     };
+  });
 
-    console.log(`[API] Fetched ${Object.keys(prices).length} prices successfully`);
-
-    return NextResponse.json({
-      prices,
-      timestamp: now,
-      marketStatus,
-      cached: false,
-      source: 'direct',
-    });
-  } catch (error) {
-    console.error('[API] Error fetching live prices:', error);
-
-    // Return stale cache if available
-    if (localCache) {
-      return NextResponse.json({
-        prices: localCache.prices,
-        timestamp: localCache.timestamp,
-        marketStatus: localCache.marketStatus,
-        cached: true,
-        stale: true,
-        source: 'local-stale',
-      });
-    }
-
-    return NextResponse.json(
-      { error: 'Failed to fetch live prices' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({
+    prices,
+    timestamp: staticTimestamp,
+    marketStatus,
+    cached: true,
+    source: 'static',
+    message: marketStatus.isOpen
+      ? 'Showing latest available prices. Prices update after market close.'
+      : 'Market closed - showing closing prices.',
+  });
 }

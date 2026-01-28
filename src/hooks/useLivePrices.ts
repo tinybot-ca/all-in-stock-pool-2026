@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { LivePriceData } from '@/lib/finnhub';
 
-interface LivePriceDataWithTimestamp extends LivePriceData {
-  updatedAt?: number;
+interface PriceData {
+  ticker: string;
+  price: number;
+  updatedAt: number;
 }
 
 interface LivePricesResponse {
-  prices: Record<string, LivePriceDataWithTimestamp>;
+  prices: Record<string, PriceData>;
   timestamp: number;
   marketStatus: { isOpen: boolean; message: string };
   cached?: boolean;
-  stale?: boolean;
+  source?: string;
   message?: string;
 }
 
@@ -26,8 +27,6 @@ interface UseLivePricesResult {
   isLive: boolean;
   refresh: () => Promise<void>;
 }
-
-const POLL_INTERVAL = 60 * 1000; // 1 minute
 
 export function useLivePrices(
   staticPrices: Record<string, number>
@@ -56,21 +55,22 @@ export function useLivePrices(
       setMarketStatus(data.marketStatus);
       setLastUpdated(new Date(data.timestamp));
 
-      // If we got live prices, merge with static prices
+      // Update prices and timestamps
       if (data.prices && Object.keys(data.prices).length > 0) {
         const mergedPrices = { ...staticPrices };
         const timestamps: Record<string, number> = {};
+
         Object.entries(data.prices).forEach(([ticker, priceData]) => {
           mergedPrices[ticker] = priceData.price;
           if (priceData.updatedAt) {
             timestamps[ticker] = priceData.updatedAt;
           }
         });
+
         setLivePrices(mergedPrices);
         setPriceTimestamps(timestamps);
-        setIsLive(true);
+        setIsLive(data.source !== 'static');
       } else {
-        // Market closed or no data - use static prices
         setLivePrices(staticPrices);
         setPriceTimestamps({});
         setIsLive(false);
@@ -86,20 +86,10 @@ export function useLivePrices(
     }
   }, [staticPrices]);
 
-  // Initial fetch
+  // Initial fetch only
   useEffect(() => {
     fetchLivePrices();
   }, [fetchLivePrices]);
-
-  // Poll for updates when market is open
-  useEffect(() => {
-    if (!marketStatus?.isOpen) {
-      return;
-    }
-
-    const interval = setInterval(fetchLivePrices, POLL_INTERVAL);
-    return () => clearInterval(interval);
-  }, [marketStatus?.isOpen, fetchLivePrices]);
 
   return {
     livePrices,
