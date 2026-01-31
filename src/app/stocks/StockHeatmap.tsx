@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { formatPercent, formatCurrency } from '@/lib/calculations';
+import { getDraftPick } from '@/lib/draftUtils';
 
 interface StockInfo {
   ticker: string;
@@ -151,6 +152,10 @@ export function StockHeatmap({ stocks, sectors }: StockHeatmapProps) {
               <div>
                 <p className="text-muted-foreground text-xs">Owner</p>
                 <p className="font-medium">{hoveredStock.owner}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Pick</p>
+                <p className="font-medium">#{getDraftPick(hoveredStock.ticker)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Sector</p>

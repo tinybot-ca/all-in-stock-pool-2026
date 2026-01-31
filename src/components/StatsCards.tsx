@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Activity, Flame } from 'lucide-react';
 import { PlayerStanding } from '@/lib/types';
 import { formatPercent } from '@/lib/calculations';
+import { getDraftPick } from '@/lib/draftUtils';
 
 interface StatsCardsProps {
   standings: PlayerStanding[];
@@ -71,8 +72,9 @@ export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
           </p>
           <div className="text-xs text-muted-foreground mt-2 pt-2 border-t border-muted">
             <span className="font-medium">Top: {leaderTopStock.ticker}</span>
+            <span className="ml-1 text-muted-foreground/70">(Pick {getDraftPick(leaderTopStock.ticker)})</span>
             <span className="ml-1">
-              ({formatPrice(leaderTopStock.basePrice)} → {formatPrice(leaderTopStock.currentPrice)})
+              {formatPrice(leaderTopStock.basePrice)} → {formatPrice(leaderTopStock.currentPrice)}
             </span>
             <span className={`ml-1 ${leaderTopStock.return >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {formatPercent(leaderTopStock.return)}
@@ -92,7 +94,10 @@ export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
           <TrendingUp className="h-4 w-4 text-green-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{bestStock.ticker}</div>
+          <div className="text-2xl font-bold">
+            {bestStock.ticker}
+            <span className="text-sm font-normal text-muted-foreground ml-2">(Pick {getDraftPick(bestStock.ticker)})</span>
+          </div>
           <div className="text-xs text-muted-foreground mt-1">
             {formatPrice(bestStock.basePrice)} → {formatPrice(bestStock.currentPrice)}
           </div>
@@ -113,7 +118,10 @@ export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
           <TrendingDown className="h-4 w-4 text-red-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{worstStock.ticker}</div>
+          <div className="text-2xl font-bold">
+            {worstStock.ticker}
+            <span className="text-sm font-normal text-muted-foreground ml-2">(Pick {getDraftPick(worstStock.ticker)})</span>
+          </div>
           <div className="text-xs text-muted-foreground mt-1">
             {formatPrice(worstStock.basePrice)} → {formatPrice(worstStock.currentPrice)}
           </div>
@@ -141,10 +149,12 @@ export function StatsCards({ standings, lastUpdated }: StatsCardsProps) {
           <div className="text-xs text-muted-foreground mt-2 pt-2 border-t border-muted space-y-1">
             <div>
               <span className="text-green-500">{mostVolatile.bestStock.ticker}</span>
+              <span className="text-muted-foreground/70 ml-1">(Pick {getDraftPick(mostVolatile.bestStock.ticker)})</span>
               <span className="text-green-500 ml-1">{formatPercent(mostVolatile.bestStock.return)}</span>
             </div>
             <div>
               <span className="text-red-400">{mostVolatile.worstStock.ticker}</span>
+              <span className="text-muted-foreground/70 ml-1">(Pick {getDraftPick(mostVolatile.worstStock.ticker)})</span>
               <span className="text-red-400 ml-1">{formatPercent(mostVolatile.worstStock.return)}</span>
             </div>
           </div>

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PlayerStanding } from '@/lib/types';
 import { formatPercent } from '@/lib/calculations';
+import { getDraftPick } from '@/lib/draftUtils';
 
 interface LeaderboardProps {
   standings: PlayerStanding[];
@@ -81,7 +82,9 @@ export function Leaderboard({ standings, compact = false }: LeaderboardProps) {
                       <p className="font-semibold">{standing.player.name}</p>
                       {!compact && (
                         <p className="text-xs text-muted-foreground">
-                          Best: {standing.bestStock.ticker} ({formatPercent(standing.bestStock.return)})
+                          Best: {standing.bestStock.ticker}{' '}
+                          <span className="text-muted-foreground/70">(Pick {getDraftPick(standing.bestStock.ticker)})</span>{' '}
+                          {formatPercent(standing.bestStock.return)}
                         </p>
                       )}
                     </div>
@@ -99,7 +102,9 @@ export function Leaderboard({ standings, compact = false }: LeaderboardProps) {
                     </Badge>
                     {!compact && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Worst: {standing.worstStock.ticker} ({formatPercent(standing.worstStock.return)})
+                        Worst: {standing.worstStock.ticker}{' '}
+                        <span className="text-muted-foreground/70">(Pick {getDraftPick(standing.worstStock.ticker)})</span>{' '}
+                        {formatPercent(standing.worstStock.return)}
                       </p>
                     )}
                   </div>

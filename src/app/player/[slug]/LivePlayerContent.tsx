@@ -16,6 +16,7 @@ import { useLivePrices } from '@/hooks/useLivePrices';
 import { calculatePlayerStandings, formatPercent, formatCurrency } from '@/lib/calculations';
 import { Player, CurrentPrices } from '@/lib/types';
 import { PlayerCharts } from './PlayerCharts';
+import { getDraftPick } from '@/lib/draftUtils';
 
 interface StockInfo {
   ticker: string;
@@ -192,6 +193,7 @@ export function LivePlayerContent({
             <TableHeader>
               <TableRow>
                 <TableHead>Stock</TableHead>
+                <TableHead className="text-center">Pick</TableHead>
                 <TableHead className="hidden md:table-cell">Sector</TableHead>
                 <TableHead className="text-right">Base</TableHead>
                 <TableHead className="text-right">Current</TableHead>
@@ -209,6 +211,9 @@ export function LivePlayerContent({
                         <span className="font-bold">{stock.ticker}</span>
                         <p className="text-xs text-muted-foreground hidden sm:block">{info?.name}</p>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-center text-sm text-muted-foreground">
+                      #{getDraftPick(stock.ticker)}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Badge variant="outline">{info?.sector || 'N/A'}</Badge>
