@@ -10,11 +10,12 @@ import { formatPercent } from '@/lib/calculations';
 interface PlayerData {
   id: string;
   name: string;
-  currentReturn: number;
+  dailyReturns: number[]; // Array of returns for each day
 }
 
 interface RaceChartProps {
   players: PlayerData[];
+  dates: string[];
   contestStartDate?: string;
 }
 
@@ -32,42 +33,55 @@ const COLORS = [
 ];
 
 // Number of interpolation steps between each day for smoother animation
-const STEPS_PER_DAY = 10;
+const STEPS_PER_DAY = 15;
 // Height of each row in pixels for position animation
-const ROW_HEIGHT = 44; // 32px bar + 12px gap (space-y-3)
+const ROW_HEIGHT = 44;
 
-export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChartProps) {
-  const [isPlaying, setIsPlaying] = useState(true); // Auto-play on load
+export function RaceChart({ players, dates, contestStartDate = '2026-01-27' }: RaceChartProps) {
+  const [isPlaying, setIsPlaying] = useState(true);
   const [frame, setFrame] = useState(0);
 
-  // Calculate days elapsed since contest start
-  // Jan 27 = Day 1, Jan 28 = Day 2, etc.
-  const startDate = new Date(contestStartDate + 'T00:00:00');
-  const today = new Date();
-  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const daysDiff = Math.floor((todayMidnight.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-  const daysElapsed = Math.max(1, daysDiff + 1); // +1 because contest start date is Day 1
+  // Total days of data (including day 0)
+  const totalDays = players[0]?.dailyReturns.length || 1;
 
-  // Total frames = days elapsed * steps per day (for smoother animation)
-  const totalFrames = Math.max(1, daysElapsed * STEPS_PER_DAY);
+  // Total frames = (days - 1) * steps per day (we animate between days)
+  const totalFrames = Math.max(1, (totalDays - 1) * STEPS_PER_DAY);
 
-  // Current day (for display purposes)
-  const currentDay = Math.floor(frame / STEPS_PER_DAY);
+  // Current day index (which day we're displaying)
+  const currentDayIndex = Math.min(
+    Math.floor(frame / STEPS_PER_DAY),
+    totalDays - 1
+  );
 
-  // Progress within the animation (0 to 1)
+  // Progress within current day (0 to 1)
+  const dayProgress = (frame % STEPS_PER_DAY) / STEPS_PER_DAY;
+
+  // Progress across entire animation (0 to 1)
   const animationProgress = frame / totalFrames;
 
-  // Calculate animated returns and sort players
+  // Interpolate returns between days for smooth animation
+  const getInterpolatedReturn = (dailyReturns: number[]) => {
+    const currentDay = currentDayIndex;
+    const nextDay = Math.min(currentDay + 1, dailyReturns.length - 1);
+
+    const currentReturn = dailyReturns[currentDay] ?? 0;
+    const nextReturn = dailyReturns[nextDay] ?? currentReturn;
+
+    // Linear interpolation between current and next day
+    return currentReturn + (nextReturn - currentReturn) * dayProgress;
+  };
+
+  // Calculate animated returns and sort players for current frame
   const sortedPlayers = useMemo(() => {
     return [...players]
       .map((player, index) => ({
         ...player,
         color: COLORS[index % COLORS.length],
         originalIndex: index,
-        animatedReturn: frame === 0 ? 0 : player.currentReturn * animationProgress,
+        animatedReturn: getInterpolatedReturn(player.dailyReturns),
       }))
       .sort((a, b) => b.animatedReturn - a.animatedReturn);
-  }, [players, frame, animationProgress]);
+  }, [players, frame, currentDayIndex, dayProgress]);
 
   // Create a map of player positions for smooth vertical transitions
   const playerPositions = useMemo(() => {
@@ -78,16 +92,23 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
     return positions;
   }, [sortedPlayers]);
 
-  // Find max return for scaling
-  const maxReturn = Math.max(...players.map((p) => Math.abs(p.currentReturn)));
-  const scale = maxReturn > 0 ? 100 / maxReturn : 1;
+  // Find max return for scaling bars
+  const maxReturn = useMemo(() => {
+    let max = 0;
+    for (const player of players) {
+      for (const ret of player.dailyReturns) {
+        if (Math.abs(ret) > max) max = Math.abs(ret);
+      }
+    }
+    return max || 0.1;
+  }, [players]);
+
+  const scale = 100 / maxReturn;
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && frame < totalFrames) {
-      // Speed: 50ms per step gives smooth animation
-      // Total animation time = daysElapsed * STEPS_PER_DAY * 50ms
-      const speed = 50;
+      const speed = 60; // ms per frame
       interval = setInterval(() => {
         setFrame((f) => Math.min(f + 1, totalFrames));
       }, speed);
@@ -109,6 +130,9 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
     }
     setIsPlaying(!isPlaying);
   };
+
+  // Get display label for current day
+  const currentDateLabel = dates[currentDayIndex] || `Day ${currentDayIndex}`;
 
   return (
     <Card>
@@ -135,17 +159,14 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
             />
           </div>
           <p className="text-sm text-muted-foreground mt-1 text-center">
-            {currentDay === 0
-              ? 'Day 0 (Base prices - Jan 26 close)'
-              : `Day ${currentDay}${currentDay === daysElapsed ? ' (Today)' : ''}`
-            }
+            {currentDateLabel}
           </p>
         </div>
 
         {/* Race bars - using absolute positioning for smooth vertical transitions */}
         <div className="relative" style={{ height: players.length * ROW_HEIGHT }}>
           {players.map((player, originalIndex) => {
-            const animatedReturn = frame === 0 ? 0 : player.currentReturn * animationProgress;
+            const animatedReturn = getInterpolatedReturn(player.dailyReturns);
             const barWidth = Math.abs(animatedReturn * scale);
             const isPositive = animatedReturn >= 0;
             const currentPosition = playerPositions[player.id] ?? originalIndex;
@@ -168,32 +189,32 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
                   },
                   opacity: { duration: 0.3 }
                 }}
-                className="absolute left-0 right-0 flex items-center gap-4"
+                className="absolute left-0 right-0 flex items-center gap-2 sm:gap-4"
                 style={{ height: ROW_HEIGHT - 12 }}
               >
-                <div className="w-6 text-center text-sm text-muted-foreground font-mono">
+                <div className="w-5 sm:w-6 text-center text-xs sm:text-sm text-muted-foreground font-mono">
                   {currentPosition + 1}
                 </div>
-                <div className="w-24 text-sm font-medium truncate">{player.name}</div>
+                <div className="w-16 sm:w-24 text-xs sm:text-sm font-medium truncate">{player.name}</div>
                 <div className="flex-1 flex items-center">
-                  <div className="flex-1 h-8 bg-muted/30 rounded-md overflow-hidden relative">
+                  <div className="flex-1 h-6 sm:h-8 bg-muted/30 rounded-md overflow-hidden relative">
                     <motion.div
                       className="h-full rounded-md"
                       style={{
                         backgroundColor: isPositive ? '#22c55e' : '#ef4444',
                       }}
                       initial={{ width: 0 }}
-                      animate={{ width: `${Math.max(barWidth, 2)}%` }}
+                      animate={{ width: `${Math.max(barWidth, 1)}%` }}
                       transition={{ duration: 0.05, ease: 'linear' }}
                     />
                     <div
-                      className="absolute inset-y-0 left-2 flex items-center text-white text-sm font-bold drop-shadow-md"
-                      style={{ opacity: barWidth > 10 ? 1 : 0 }}
+                      className="absolute inset-y-0 left-2 flex items-center text-white text-xs sm:text-sm font-bold drop-shadow-md"
+                      style={{ opacity: barWidth > 15 ? 1 : 0 }}
                     >
                       {player.name}
                     </div>
                   </div>
-                  <div className="w-20 text-right text-sm font-mono">
+                  <div className="w-16 sm:w-20 text-right text-xs sm:text-sm font-mono">
                     <span className={isPositive ? 'text-green-500' : 'text-red-500'}>
                       {formatPercent(animatedReturn)}
                     </span>
@@ -207,9 +228,8 @@ export function RaceChart({ players, contestStartDate = '2026-01-27' }: RaceChar
         {/* Legend */}
         <div className="mt-8 pt-4 border-t text-sm text-muted-foreground">
           <p>
-            {daysElapsed <= 2
-              ? "The contest just started! Day 0 shows base prices (Jan 26 close), Day 1 is the first trading day (Jan 27). Watch players move up and down as standings change!"
-              : "This animation shows how standings have changed since the start of the contest. Day 0 = base prices, Day 1 = Jan 27. Watch players move up and down as their rankings change!"}
+            Watch players move up and down as their rankings change each day.
+            Day 0 shows base prices (Jan 26 close).
           </p>
         </div>
       </CardContent>
