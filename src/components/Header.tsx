@@ -21,10 +21,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <BarChart3 className="h-8 w-8 text-primary" />
+        <Link href="/" className="flex items-center gap-1.5 sm:gap-2">
+          <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           <div className="flex flex-col">
-            <span className="font-bold text-lg leading-tight">All-In Stock Pool</span>
+            <span className="font-bold text-sm sm:text-lg leading-tight">All-In Stock Pool</span>
             <span className="text-xs text-muted-foreground">2026</span>
           </div>
         </Link>
@@ -51,35 +51,27 @@ export function Header() {
           })}
         </nav>
 
-        {/* Mobile menu - simplified for now */}
-        <nav className="flex md:hidden items-center gap-1">
-          <Link
-            href="/"
-            className={cn(
-              'p-2 rounded-md',
-              pathname === '/' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
-            )}
-          >
-            <TrendingUp className="h-5 w-5" />
-          </Link>
-          <Link
-            href="/players"
-            className={cn(
-              'p-2 rounded-md',
-              pathname.startsWith('/player') ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
-            )}
-          >
-            <Users className="h-5 w-5" />
-          </Link>
-          <Link
-            href="/stocks"
-            className={cn(
-              'p-2 rounded-md',
-              pathname === '/stocks' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
-            )}
-          >
-            <Grid3X3 className="h-5 w-5" />
-          </Link>
+        {/* Mobile menu - all navigation items with compact icons for iPhone */}
+        <nav className="flex md:hidden items-center">
+          {navigation.map((item) => {
+            const isActive = pathname === item.href ||
+              (item.href !== '/' && pathname.startsWith(item.href));
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  'p-1 rounded-md transition-colors',
+                  isActive
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+                title={item.name}
+              >
+                <item.icon className="h-4 w-4" />
+              </Link>
+            );
+          })}
         </nav>
       </div>
     </header>
