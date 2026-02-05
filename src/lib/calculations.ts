@@ -87,3 +87,15 @@ export function getRankChangeClass(current: number, previous?: number): string {
   if (current > previous) return 'text-red-500';
   return 'text-gray-400';
 }
+
+// Calculate player return from a price snapshot (used for historical data)
+export function calculatePlayerReturn(
+  player: Player,
+  prices: Record<string, number>
+): number {
+  const returns = player.stocks.map((stock) => {
+    const currentPrice = prices[stock.ticker] || stock.basePrice;
+    return calculateStockReturn(stock.basePrice, currentPrice);
+  });
+  return returns.reduce((sum, r) => sum + r, 0) / returns.length;
+}
